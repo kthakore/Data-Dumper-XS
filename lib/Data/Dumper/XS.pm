@@ -1,46 +1,97 @@
 package Data::Dumper::XS;
 use strict;
-
+use warnings; 
 BEGIN {
     use Exporter ();
     use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
     $VERSION     = '0.01';
     @ISA         = qw(Exporter);
-    #Give a hoot don't pollute, do not export more than needed by default
-    @EXPORT      = qw();
-    @EXPORT_OK   = qw();
+    @EXPORT      = qw(Dumper);
+    @EXPORT_OK   = qw(Dumper);
     %EXPORT_TAGS = ();
 }
 
 
 #################### subroutine header begin ####################
 
-=head2 sample_function
+=head2 Dumper 
 
- Usage     : How to use this function/method
- Purpose   : What it does
- Returns   : What it returns
- Argument  : What it wants to know
- Throws    : Exceptions and other anomolies
- Comment   : This is a sample subroutine header.
-           : It is polite to include more pod and fewer comments.
+ Usage     : Call Dumper on any perl object
+ Purpose   : Converts Perl Object to Hard coded XS
+ Returns   : Returns a string of XS
 
-See Also   : 
+See Also   : Data::Dumper 
 
 =cut
 
 #################### subroutine header end ####################
 
 
-sub new
+sub Dumper
 {
-    my ($class, %parameters) = @_;
+	my ($name, $obj) = @_;
+	my $ref_type = ref $obj;
 
-    my $self = bless ({}, ref ($class) || $class);
+	my $result = "\nSV*\n$name()\n\tCODE:\n\t\tRETVAL =";
 
-    return $self;
+	$result .= _ref_xs( @_ );
+	$result .= "\n\tOUTPUT:\n\t\tRETVAL\n";
+
+	return $result;
+
 }
 
+#################### private method  ###################
+
+sub _ref_xs
+{
+	my ($name, $obj) = @_;
+	my $ref_type = ref $obj;
+
+	my $result = " ";
+	if ( $ref_type eq 'HASH' )
+	{
+	
+		$result .= _hash_xs( @_ );
+
+	}
+	elsif ( $ref_type eq 'ARRAY' )
+	{
+
+		$result .= _array_xs( @_ );
+
+	}
+	elsif ( $ref_type )
+	{
+		
+		$result .= _bless_xs (@_);
+		
+	}
+	else
+	{
+		#We should seperate SV or NV or IV
+
+		$result .= " newSVpv (\"$obj\",0);";
+
+	}
+
+	return $result;
+}
+
+sub _hash_xs
+{
+
+}
+
+sub _array_xs
+{
+
+}
+
+sub _bless_xs
+{
+
+}
 
 #################### main pod documentation begin ###################
 ## Below is the stub of documentation for your module. 
